@@ -17,6 +17,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Plus Jakarta Sans", "system-ui", "sans-serif"],
+        serif: ["Playfair Display", "Georgia", "serif"],
       },
       colors: {
         border: "oklch(var(--border))",
@@ -77,8 +78,8 @@ export default {
       },
       boxShadow: {
         xs: "0 1px 2px 0 rgba(0,0,0,0.05)",
-        card: "0 4px 24px rgba(0,0,0,0.10)",
-        "card-hover": "0 8px 32px rgba(0,0,0,0.16)",
+        card: "0 4px 24px rgba(80,70,120,0.10)",
+        "card-hover": "0 8px 32px rgba(80,70,120,0.16)",
       },
       keyframes: {
         "accordion-down": {

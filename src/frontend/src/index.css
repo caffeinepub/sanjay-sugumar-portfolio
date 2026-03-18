@@ -1,0 +1,259 @@
+@font-face {
+  font-family: "Playfair Display";
+  src: url("/assets/fonts/PlayfairDisplay.woff2") format("woff2");
+  font-weight: 400 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/assets/fonts/PlusJakartaSans.woff2") format("woff2");
+  font-weight: 300 700;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0.84 0.038 293;
+    --foreground: 0.13 0.005 285;
+    --card: 0.99 0.003 285;
+    --card-foreground: 0.13 0.005 285;
+    --popover: 0.99 0.003 285;
+    --popover-foreground: 0.13 0.005 285;
+    --primary: 0.13 0.005 285;
+    --primary-foreground: 0.99 0.003 285;
+    --secondary: 0.92 0.02 293;
+    --secondary-foreground: 0.13 0.005 285;
+    --muted: 0.9 0.025 293;
+    --muted-foreground: 0.42 0.01 285;
+    --accent: 0.86 0.04 293;
+    --accent-foreground: 0.13 0.005 285;
+    --destructive: 0.55 0.18 27;
+    --destructive-foreground: 0.99 0.003 285;
+    --border: 0.78 0.04 293;
+    --input: 0.78 0.04 293;
+    --ring: 0.13 0.005 285;
+    --radius: 14px;
+    --chart-1: 0.65 0.15 300;
+    --chart-2: 0.6 0.14 250;
+    --chart-3: 0.55 0.13 200;
+    --chart-4: 0.7 0.12 320;
+    --chart-5: 0.75 0.1 270;
+    --sidebar: 0.13 0.005 285;
+    --sidebar-foreground: 0.99 0.003 285;
+    --sidebar-primary: 0.65 0.15 293;
+    --sidebar-primary-foreground: 0.99 0.003 285;
+    --sidebar-accent: 0.2 0.01 285;
+    --sidebar-accent-foreground: 0.99 0.003 285;
+    --sidebar-border: 0.25 0.01 285;
+    --sidebar-ring: 0.65 0.15 293;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    background-color: #c9c8e8;
+  }
+}
+
+/* ─── Leaf float animation ─────────────────────────────────────────────────── */
+@keyframes leafFloat {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(1.5deg);
+  }
+}
+
+.leaf-float {
+  animation: leafFloat 9s ease-in-out infinite;
+}
+
+.leaf-float-alt {
+  animation: leafFloat 11s ease-in-out infinite;
+  animation-delay: -4s;
+}
+
+/* ─── Plant leaf sway ──────────────────────────────────────────────────────── */
+@keyframes leafSway {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
+}
+
+.leaf-sway-1 {
+  animation: leafSway 5s ease-in-out infinite;
+  animation-delay: 0s;
+}
+.leaf-sway-2 {
+  animation: leafSway 6s ease-in-out infinite;
+  animation-delay: -2s;
+}
+.leaf-sway-3 {
+  animation: leafSway 4.5s ease-in-out infinite;
+  animation-delay: -1s;
+}
+.leaf-sway-4 {
+  animation: leafSway 7s ease-in-out infinite;
+  animation-delay: -3s;
+}
+
+/* ─── Fish swim animation ──────────────────────────────────────────────────── */
+@keyframes fishSwim {
+  0% {
+    transform: translate(-22px, 1px) scaleX(-1);
+  }
+  48% {
+    transform: translate(22px, -2px) scaleX(-1);
+  }
+  50% {
+    transform: translate(22px, -2px) scaleX(1);
+  }
+  98% {
+    transform: translate(-22px, 2px) scaleX(1);
+  }
+  100% {
+    transform: translate(-22px, 1px) scaleX(-1);
+  }
+}
+
+.fish-swim {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: fishSwim 10s ease-in-out infinite;
+}
+
+/* ─── Flower sway animations ───────────────────────────────────────────────── */
+@keyframes flowerSwayLeft {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  33% {
+    transform: rotate(-4deg);
+  }
+  66% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes flowerSwayRight {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  33% {
+    transform: rotate(3.5deg);
+  }
+  66% {
+    transform: rotate(-3deg);
+  }
+}
+
+.flower-sway-left {
+  transform-box: fill-box;
+  animation: flowerSwayLeft 7s ease-in-out infinite;
+}
+
+.flower-sway-right {
+  transform-box: fill-box;
+  animation: flowerSwayRight 8s ease-in-out infinite;
+  animation-delay: -3s;
+}
+
+/* ─── Water shimmer ────────────────────────────────────────────────────────── */
+@keyframes waterShimmer {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scaleX(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scaleX(1.04);
+  }
+}
+
+.water-shimmer {
+  animation: waterShimmer 4s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* ─── Cursor blink ─────────────────────────────────────────────────────────── */
+@keyframes cursorBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.cursor-blink {
+  animation: cursorBlink 1s step-end infinite;
+}
+
+/* ─── Nav link hover underline ─────────────────────────────────────────────── */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: white;
+  transition: width 0.25s ease;
+  border-radius: 2px;
+}
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* ─── Telegram button glow ─────────────────────────────────────────────────── */
+@keyframes telegramGlow {
+  0%,
+  100% {
+    box-shadow: 0 4px 20px rgba(0, 136, 204, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 32px rgba(0, 136, 204, 0.6);
+  }
+}
+
+.telegram-btn {
+  animation: telegramGlow 3s ease-in-out infinite;
+}
+.telegram-btn:hover {
+  animation: none;
+  box-shadow: 0 6px 40px rgba(0, 136, 204, 0.7);
+  transform: translateY(-2px) scale(1.03);
+  transition: all 0.2s ease;
+}
+
+/* ─── Scroll reveal ────────────────────────────────────────────────────────── */
+.reveal-section {
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}

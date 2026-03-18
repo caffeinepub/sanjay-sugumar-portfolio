@@ -1,1060 +1,1284 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  BookOpen,
+  ChevronDown,
+  Download,
+  ExternalLink,
+  GraduationCap,
+  Menu,
+  Star,
+  X,
+} from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
+import { SiGithub, SiTelegram } from "react-icons/si";
 
-// ─── GitHub Repos Hook ────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 interface GitHubRepo {
   id: number;
   name: string;
   description: string | null;
-  language: string | null;
   html_url: string;
+  language: string | null;
   stargazers_count: number;
-  fork: boolean;
 }
 
-function useGitHubRepos() {
-  const [repos, setRepos] = useState<GitHubRepo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+// ─── Constants ────────────────────────────────────────────────────────────────
+const LAVENDER = "#C9C8E8";
+const DARK = "#111111";
 
-  const fetchRepos = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(
-        "https://api.github.com/users/sanjaysugumar2005/repos?sort=updated&per_page=12",
-      );
-      if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
-      const data: GitHubRepo[] = await res.json();
-      setRepos(data.filter((r) => !r.fork));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load repos");
-    } finally {
-      setLoading(false);
+// ─── Typing Animation Hook ────────────────────────────────────────────────────
+// Text split with \n to control SVG line breaks
+const TYPING_FULL = "Hi and hello!\nI'm Sanjay Sugumar,\nglad you're here.";
+
+function useTypingAnimation() {
+  const [count, setCount] = useState(0);
+  const [showCursor, setShowCursor] = useState(true);
+
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout>;
+    if (count < TYPING_FULL.length) {
+      t = setTimeout(() => setCount((c) => c + 1), 65);
+    } else {
+      t = setTimeout(() => setCount(0), 5500);
     }
-  }, []);
+    return () => clearTimeout(t);
+  }, [count]);
 
   useEffect(() => {
-    fetchRepos();
-  }, [fetchRepos]);
-
-  return { repos, loading, error, retry: fetchRepos };
-}
-
-// ─── Resume Exists Hook ───────────────────────────────────────────────────────
-function useResumeExists() {
-  const [resumeExists, setResumeExists] = useState(false);
-  useEffect(() => {
-    fetch("/resume/sanjayresume.pdf", { method: "HEAD" })
-      .then((r) => setResumeExists(r.ok))
-      .catch(() => setResumeExists(false));
+    const interval = setInterval(() => setShowCursor((v) => !v), 530);
+    return () => clearInterval(interval);
   }, []);
-  return { resumeExists };
+
+  const displayedText = TYPING_FULL.slice(0, count);
+  const lines = displayedText.split("\n");
+  const isTyping = count < TYPING_FULL.length;
+
+  return { lines, showCursor: isTyping ? true : showCursor };
 }
 
-// ─── Boat + Neon + Sky Styles ─────────────────────────────────────────────────
-const boatStyles = `
-  @keyframes boatDrift {
-    0%   { left: -12%; }
-    100% { left: 112%; }
-  }
-  @keyframes boatBob {
-    0%   { transform: translateY(0px) rotate(-0.8deg); }
-    25%  { transform: translateY(-6px) rotate(0deg); }
-    50%  { transform: translateY(-8px) rotate(0.8deg); }
-    75%  { transform: translateY(-5px) rotate(0deg); }
-    100% { transform: translateY(0px) rotate(-0.8deg); }
-  }
-  .boat-animate {
-    animation:
-      boatDrift 70s linear infinite,
-      boatBob 6s ease-in-out infinite;
-  }
-  @keyframes shimmer {
-    0% { background-position: -400px 0; }
-    100% { background-position: 400px 0; }
-  }
-  .shimmer {
-    background: linear-gradient(90deg,rgba(139,92,246,0.07) 25%,rgba(139,92,246,0.18) 50%,rgba(139,92,246,0.07) 75%);
-    background-size: 400px 100%;
-    animation: shimmer 1.6s infinite linear;
-  }
-  @keyframes neonCycle {
-    0%, 16%  { color: #a855f7; text-shadow: 0 0 8px #a855f7, 0 0 20px #a855f7, 0 0 40px #a855f7, 0 0 80px #a855f7; }
-    20%, 36% { color: #3b82f6; text-shadow: 0 0 8px #3b82f6, 0 0 20px #3b82f6, 0 0 40px #3b82f6, 0 0 80px #3b82f6; }
-    40%, 56% { color: #06b6d4; text-shadow: 0 0 8px #06b6d4, 0 0 20px #06b6d4, 0 0 40px #06b6d4, 0 0 80px #06b6d4; }
-    60%, 76% { color: #ec4899; text-shadow: 0 0 8px #ec4899, 0 0 20px #ec4899, 0 0 40px #ec4899, 0 0 80px #ec4899; }
-    80%, 96% { color: #facc15; text-shadow: 0 0 8px #facc15, 0 0 20px #facc15, 0 0 40px #facc15, 0 0 80px #facc15; }
-    100%     { color: #a855f7; text-shadow: 0 0 8px #a855f7, 0 0 20px #a855f7, 0 0 40px #a855f7, 0 0 80px #a855f7; }
-  }
-  .neon-name {
-    animation: neonCycle 25s linear infinite;
-    font-weight: 800;
-  }
-  .subtitle-fade {
-    transition: opacity 1.5s ease-in-out;
-  }
+// ─── Desk SVG Illustration ────────────────────────────────────────────────────
+function DeskIllustration() {
+  const { lines: typingLines, showCursor } = useTypingAnimation();
 
-  @keyframes skyDay {
-    0%    { background: linear-gradient(to bottom, #0a0a1a 0%, #1a1a3a 100%); }
-    8%    { background: linear-gradient(to bottom, #ff6b35 0%, #ff9a3c 40%, #1a3a6b 100%); }
-    20%   { background: linear-gradient(to bottom, #1a6bb5 0%, #4a9fd4 40%, #87ceeb 100%); }
-    40%   { background: linear-gradient(to bottom, #0d4b8c 0%, #1a7fc4 40%, #87ceeb 100%); }
-    60%   { background: linear-gradient(to bottom, #1a6bb5 0%, #4a9fd4 40%, #87ceeb 100%); }
-    72%   { background: linear-gradient(to bottom, #c0392b 0%, #e67e22 40%, #2c3e6b 100%); }
-    80%   { background: linear-gradient(to bottom, #0a0a2a 0%, #1a1a4a 100%); }
-    100%  { background: linear-gradient(to bottom, #0a0a1a 0%, #1a1a3a 100%); }
-  }
-
-  @keyframes sunMove {
-    0%    { left: -8%; bottom: -10%; opacity: 0; }
-    5%    { opacity: 1; }
-    8%    { left: 10%; bottom: 20%; }
-    40%   { left: 50%; bottom: 65%; }
-    72%   { left: 90%; bottom: 20%; opacity: 1; }
-    76%   { left: 95%; bottom: 5%; opacity: 0; }
-    100%  { left: 95%; bottom: -10%; opacity: 0; }
-  }
-
-  @keyframes moonMove {
-    0%    { left: -8%; bottom: -10%; opacity: 0; }
-    82%   { left: -8%; bottom: -10%; opacity: 0; }
-    86%   { left: 10%; bottom: 20%; opacity: 1; }
-    93%   { left: 50%; bottom: 58%; opacity: 1; }
-    98%   { left: 90%; bottom: 25%; opacity: 1; }
-    100%  { left: 95%; bottom: 15%; opacity: 0.3; }
-  }
-
-  @keyframes starTwinkle {
-    0%, 100% { opacity: 0.8; }
-    50% { opacity: 0.2; }
-  }
-
-  @keyframes starsAppear {
-    0%, 75%  { opacity: 0; }
-    82%      { opacity: 1; }
-    100%     { opacity: 1; }
-  }
-
-  .sky-animate {
-    animation: skyDay 36s linear infinite;
-  }
-
-  .sun-animate {
-    animation: sunMove 36s linear infinite;
-    position: absolute;
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: radial-gradient(circle, #fff7c0 0%, #ffe033 40%, #ffb300 70%, rgba(255,150,0,0) 100%);
-    box-shadow: 0 0 20px 10px rgba(255,200,0,0.5), 0 0 60px 20px rgba(255,150,0,0.3);
-    transform: translate(-50%, 50%);
-    pointer-events: none;
-  }
-
-  .moon-animate {
-    animation: moonMove 36s linear infinite;
-    position: absolute;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: radial-gradient(circle, #fffff0 0%, #d4d4c0 60%, rgba(200,200,160,0) 100%);
-    box-shadow: 0 0 15px 8px rgba(220,220,180,0.4), 0 0 40px 15px rgba(180,180,140,0.2);
-    transform: translate(-50%, 50%);
-    pointer-events: none;
-  }
-
-  .stars-animate {
-    animation: starsAppear 36s linear infinite;
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-
-  @keyframes telegramPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(0,136,204,0.5), 0 8px 32px rgba(0,136,204,0.35); }
-    50%      { box-shadow: 0 0 0 12px rgba(0,136,204,0), 0 8px 32px rgba(0,136,204,0.55); }
-  }
-  .telegram-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px 36px;
-    border-radius: 50px;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #fff;
-    background: linear-gradient(135deg, #0088cc 0%, #229ed9 100%);
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    transition: transform 0.25s ease, background 0.25s ease;
-    animation: telegramPulse 2.4s ease-in-out infinite;
-  }
-  .telegram-btn:hover {
-    transform: translateY(-4px) scale(1.05);
-    background: linear-gradient(135deg, #0099dd 0%, #33aaee 100%);
-  }
-  .telegram-btn:active {
-    transform: translateY(-1px) scale(1.01);
-  }
-
-  @keyframes resumeGlow {
-    0%, 100% { box-shadow: 0 4px 20px rgba(168,85,247,0.4); }
-    50%       { box-shadow: 0 4px 32px rgba(168,85,247,0.8), 0 0 20px rgba(59,130,246,0.5); }
-  }
-  .resume-btn-view {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 28px;
-    border-radius: 50px;
-    font-size: 1rem;
-    font-weight: 700;
-    color: #fff;
-    background: linear-gradient(90deg, #a855f7, #3b82f6);
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-    box-shadow: 0 4px 20px rgba(168,85,247,0.4);
-  }
-  .resume-btn-view:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 4px 32px rgba(168,85,247,0.8), 0 0 20px rgba(59,130,246,0.5);
-  }
-  .resume-btn-download {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 28px;
-    border-radius: 50px;
-    font-size: 1rem;
-    font-weight: 700;
-    color: #facc15;
-    background: transparent;
-    border: 2px solid #facc15;
-    cursor: pointer;
-    text-decoration: none;
-    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, color 0.25s ease;
-    box-shadow: 0 4px 20px rgba(250,204,21,0.2);
-  }
-  .resume-btn-download:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 4px 32px rgba(250,204,21,0.6), 0 0 20px rgba(250,204,21,0.4);
-    background: rgba(250,204,21,0.1);
-  }
-`;
-
-// ─── GitHub Icon ──────────────────────────────────────────────────────────────
-function GitHubIcon({ size = 20 }: { size?: number }) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
+    <div
+      className="relative w-full select-none"
+      style={{ maxWidth: "1100px", margin: "0 auto" }}
     >
-      <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
-    </svg>
-  );
-}
+      <svg
+        viewBox="0 0 1100 500"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-full h-auto"
+        aria-label="Desk with large monitor, flower pots, and fish bowl"
+        role="img"
+      >
+        <defs>
+          {/* Monitor screen gradient */}
+          <linearGradient id="screenGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#FAFAFA" />
+            <stop offset="100%" stopColor="#F0F0F0" />
+          </linearGradient>
+          {/* Monitor body gradient */}
+          <linearGradient id="monitorGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#2A2A2A" />
+            <stop offset="100%" stopColor="#1A1A1A" />
+          </linearGradient>
+          {/* Pen gradient */}
+          <linearGradient id="penGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#D0D0D0" />
+            <stop offset="40%" stopColor="#E8E8E8" />
+            <stop offset="100%" stopColor="#B8B8B8" />
+          </linearGradient>
+          {/* Desk gradient */}
+          <linearGradient id="deskGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#F8F8F8" />
+            <stop offset="100%" stopColor="#EFEFEF" />
+          </linearGradient>
+          {/* Pot gradient left */}
+          <linearGradient id="potGradL" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#8A6BA8" />
+            <stop offset="100%" stopColor="#6A4A88" />
+          </linearGradient>
+          {/* Pot gradient right */}
+          <linearGradient id="potGradR" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#9B7CBB" />
+            <stop offset="100%" stopColor="#7A5A9A" />
+          </linearGradient>
+          {/* Bowl clip */}
+          <clipPath id="bowlClip2">
+            <ellipse cx="878" cy="288" rx="52" ry="48" />
+          </clipPath>
+        </defs>
 
-// ─── Telegram Icon ────────────────────────────────────────────────────────────
-function TelegramIcon({ size = 24 }: { size?: number }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
-    </svg>
-  );
-}
+        {/* ── DESK SURFACE ── */}
+        <ellipse
+          cx="550"
+          cy="358"
+          rx="490"
+          ry="12"
+          fill="rgba(80,60,120,0.08)"
+        />
+        <rect
+          x="60"
+          y="342"
+          width="980"
+          height="28"
+          rx="6"
+          fill="url(#deskGrad)"
+        />
+        <rect
+          x="60"
+          y="342"
+          width="980"
+          height="4"
+          rx="2"
+          fill="#FFFFFF"
+          opacity="0.9"
+        />
+        <rect x="60" y="366" width="980" height="4" rx="2" fill="#E0E0E0" />
+        {/* Desk legs */}
+        <rect x="86" y="370" width="22" height="100" rx="6" fill="#E8E8E8" />
+        <rect x="992" y="370" width="22" height="100" rx="6" fill="#E8E8E8" />
+        <ellipse
+          cx="550"
+          cy="470"
+          rx="460"
+          ry="10"
+          fill="rgba(80,60,120,0.05)"
+        />
 
-// ─── Sky Background ───────────────────────────────────────────────────────────
-function SkyBackground() {
-  const stars = Array.from({ length: 60 }, (_, i) => ({
-    id: i,
-    left: ((i * 137.5) % 100).toFixed(1),
-    top: ((i * 73.1) % 55).toFixed(1),
-    size: 1 + (i % 3),
-    delay: ((i * 0.4) % 3).toFixed(1),
-    duration: (2 + (i % 3)).toFixed(1),
-  }));
-
-  return (
-    <div className="sky-animate fixed inset-0 z-0 pointer-events-none overflow-hidden">
-      {/* Stars */}
-      <div className="stars-animate">
-        {stars.map((star) => (
-          <div
-            key={star.id}
-            style={{
-              position: "absolute",
-              left: `${star.left}%`,
-              top: `${star.top}%`,
-              width: `${star.size}px`,
-              height: `${star.size}px`,
-              borderRadius: "50%",
-              background: "#fff",
-              animation: `starTwinkle ${star.duration}s ease-in-out ${star.delay}s infinite, starsAppear 36s linear infinite`,
-            }}
+        {/* ════════════════════════════════════════
+            LEFT FLOWER POT (lavender flowers)
+        ════════════════════════════════════════ */}
+        {/* Pot shadow */}
+        <ellipse cx="148" cy="350" rx="42" ry="6" fill="rgba(0,0,0,0.07)" />
+        {/* Pot body */}
+        <path
+          d="M118 342 Q110 320 112 296 Q114 282 130 278 Q148 275 166 278 Q182 282 184 296 Q186 320 178 342Z"
+          fill="url(#potGradL)"
+        />
+        {/* Pot rim */}
+        <ellipse cx="148" cy="278" rx="36" ry="8" fill="#9A7ABB" />
+        <ellipse cx="148" cy="275" rx="32" ry="6" fill="#B090D0" />
+        {/* Pot base */}
+        <ellipse cx="148" cy="342" rx="30" ry="6" fill="#5A3A78" />
+        {/* Soil */}
+        <ellipse cx="148" cy="275" rx="28" ry="5" fill="#5C3D1E" />
+        {/* Stems */}
+        <path
+          d="M148 275 Q142 252 138 230 Q134 210 136 192"
+          stroke="#5A8040"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          fill="none"
+        />
+        <path
+          d="M148 275 Q154 248 158 222 Q162 200 160 178"
+          stroke="#4A7030"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          fill="none"
+        />
+        <path
+          d="M148 275 Q148 255 148 238 Q148 218 150 198"
+          stroke="#5A8040"
+          strokeWidth="2"
+          strokeLinecap="round"
+          fill="none"
+        />
+        {/* Leaves on stems */}
+        <path d="M138 230 Q126 222 120 210 Q130 205 140 215Z" fill="#5A8040" />
+        <path d="M158 222 Q170 212 176 200 Q165 198 157 208Z" fill="#4A7030" />
+        {/* LEFT FLOWER POT - LAVENDER FLOWERS */}
+        <g
+          className="flower-sway-left"
+          style={{ transformOrigin: "148px 275px" }}
+        >
+          {/* Flower 1 (center) */}
+          <circle cx="150" cy="192" r="5" fill="#C084FC" opacity="0.9" />
+          <circle cx="150" cy="183" r="4.5" fill="#C084FC" opacity="0.85" />
+          <circle cx="143" cy="188" r="4.5" fill="#A855F7" opacity="0.85" />
+          <circle cx="157" cy="188" r="4.5" fill="#A855F7" opacity="0.85" />
+          <circle cx="143" cy="197" r="4.5" fill="#C084FC" opacity="0.8" />
+          <circle cx="157" cy="197" r="4.5" fill="#C084FC" opacity="0.8" />
+          <circle cx="150" cy="190" r="3.5" fill="#FDE68A" />
+          {/* Flower 2 (left stem) */}
+          <circle cx="136" cy="187" r="4" fill="#D8B4FE" opacity="0.9" />
+          <circle cx="136" cy="179" r="4" fill="#C084FC" opacity="0.85" />
+          <circle cx="130" cy="183" r="4" fill="#A855F7" opacity="0.85" />
+          <circle cx="142" cy="183" r="4" fill="#A855F7" opacity="0.85" />
+          <circle cx="136" cy="185" r="3" fill="#FDE68A" />
+          {/* Flower 3 (right stem) */}
+          <circle cx="160" cy="173" r="4.5" fill="#C084FC" opacity="0.9" />
+          <circle cx="160" cy="165" r="4" fill="#D8B4FE" opacity="0.85" />
+          <circle cx="154" cy="169" r="4" fill="#A855F7" opacity="0.85" />
+          <circle cx="166" cy="169" r="4" fill="#B06ED4" opacity="0.85" />
+          <circle cx="160" cy="171" r="3" fill="#FDE68A" />
+          {/* Small buds */}
+          <ellipse
+            cx="140"
+            cy="208"
+            rx="4"
+            ry="6"
+            fill="#C084FC"
+            opacity="0.7"
           />
-        ))}
-      </div>
-      {/* Sun */}
-      <div className="sun-animate" />
-      {/* Moon */}
-      <div className="moon-animate" />
+          <ellipse
+            cx="156"
+            cy="205"
+            rx="3.5"
+            ry="5.5"
+            fill="#A855F7"
+            opacity="0.65"
+          />
+          {/* Green leaves on flowers */}
+          <path
+            d="M146 198 Q138 204 134 212"
+            stroke="#5A8040"
+            strokeWidth="1.5"
+            fill="none"
+          />
+          <path
+            d="M152 195 Q160 200 164 208"
+            stroke="#4A7030"
+            strokeWidth="1.5"
+            fill="none"
+          />
+        </g>
+
+        {/* ════════════════════════════════════════
+            LARGE DESKTOP MONITOR (center)
+        ════════════════════════════════════════ */}
+        {/* Monitor shadow */}
+        <ellipse cx="548" cy="356" rx="200" ry="10" fill="rgba(0,0,0,0.10)" />
+        {/* Monitor stand base */}
+        <rect x="490" y="344" width="116" height="10" rx="5" fill="#252525" />
+        <rect x="488" y="350" width="120" height="6" rx="3" fill="#1A1A1A" />
+        {/* Monitor stand neck */}
+        <rect x="532" y="292" width="32" height="56" rx="6" fill="#2A2A2A" />
+        {/* Monitor stand neck highlight */}
+        <rect
+          x="534"
+          y="295"
+          width="8"
+          height="48"
+          rx="3"
+          fill="#3A3A3A"
+          opacity="0.5"
+        />
+        {/* Monitor body outer */}
+        <rect
+          x="266"
+          y="52"
+          width="564"
+          height="244"
+          rx="14"
+          fill="url(#monitorGrad)"
+        />
+        {/* Monitor bezel inner */}
+        <rect x="278" y="64" width="540" height="220" rx="8" fill="#111111" />
+        {/* Monitor screen */}
+        <rect
+          x="286"
+          y="70"
+          width="524"
+          height="210"
+          rx="5"
+          fill="url(#screenGrad)"
+        />
+        {/* Camera dot */}
+        <circle cx="548" cy="59" r="4" fill="#333333" />
+        <circle cx="548" cy="59" r="2" fill="#222222" />
+        {/* Screen bottom bezel bar */}
+        <rect x="266" y="288" width="564" height="10" rx="3" fill="#1A1A1A" />
+        {/* Monitor edge highlight top */}
+        <rect
+          x="268"
+          y="53"
+          width="558"
+          height="3"
+          rx="1.5"
+          fill="#3A3A3A"
+          opacity="0.6"
+        />
+
+        {/* ── TYPING TEXT ON MONITOR SCREEN ── */}
+        {typingLines[0] !== undefined && (
+          <text
+            x="306"
+            y="116"
+            fontFamily="Calibri, Candara, 'Segoe UI', sans-serif"
+            fontSize="21"
+            fontWeight="bold"
+            fill="#111111"
+          >
+            {typingLines[0]}
+            {typingLines.length === 1 && (
+              <tspan fill="#111111" opacity={showCursor ? 1 : 0}>
+                |
+              </tspan>
+            )}
+          </text>
+        )}
+        {typingLines[1] !== undefined && (
+          <text
+            x="306"
+            y="144"
+            fontFamily="Calibri, Candara, 'Segoe UI', sans-serif"
+            fontSize="21"
+            fontWeight="bold"
+            fill="#111111"
+          >
+            {typingLines[1]}
+            {typingLines.length === 2 && (
+              <tspan fill="#111111" opacity={showCursor ? 1 : 0}>
+                |
+              </tspan>
+            )}
+          </text>
+        )}
+        {typingLines[2] !== undefined && (
+          <text
+            x="306"
+            y="172"
+            fontFamily="Calibri, Candara, 'Segoe UI', sans-serif"
+            fontSize="21"
+            fontWeight="bold"
+            fill="#111111"
+          >
+            {typingLines[2]}
+            {typingLines.length === 3 && (
+              <tspan fill="#111111" opacity={showCursor ? 1 : 0}>
+                |
+              </tspan>
+            )}
+          </text>
+        )}
+        {/* Screen decorative elements when not typing / waiting */}
+        <rect
+          x="306"
+          y="196"
+          width="120"
+          height="3"
+          rx="1.5"
+          fill="#E0E0E0"
+          opacity="0.6"
+        />
+        <rect
+          x="306"
+          y="204"
+          width="90"
+          height="3"
+          rx="1.5"
+          fill="#E0E0E0"
+          opacity="0.4"
+        />
+        <rect
+          x="306"
+          y="212"
+          width="140"
+          height="3"
+          rx="1.5"
+          fill="#E0E0E0"
+          opacity="0.3"
+        />
+
+        {/* ── SILVER PEN (left of monitor, on desk) ── */}
+        <ellipse cx="232" cy="350" rx="52" ry="4" fill="rgba(0,0,0,0.05)" />
+        <rect
+          x="180"
+          y="344"
+          width="104"
+          height="9"
+          rx="4.5"
+          fill="url(#penGrad2)"
+        />
+        <rect
+          x="182"
+          y="345"
+          width="96"
+          height="3"
+          rx="1.5"
+          fill="#F0F0F0"
+          opacity="0.7"
+        />
+        <path d="M180 348.5 L172 353 L180 353Z" fill="#AAAAAA" />
+        <rect
+          x="280"
+          y="344.5"
+          width="10"
+          height="7.5"
+          rx="3.5"
+          fill="#C0C0C0"
+        />
+
+        {/* ── EYEGLASSES (right of monitor, on desk) ── */}
+        <ellipse cx="718" cy="349" rx="52" ry="5" fill="rgba(0,0,0,0.06)" />
+        {/* Left arm */}
+        <line
+          x1="676"
+          y1="337"
+          x2="668"
+          y2="349"
+          stroke="#1A1A1A"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+        {/* Left lens */}
+        <ellipse
+          cx="692"
+          cy="332"
+          rx="18"
+          ry="11"
+          stroke="#1A1A1A"
+          strokeWidth="2.5"
+          fill="rgba(200,214,240,0.2)"
+        />
+        {/* Bridge */}
+        <path
+          d="M710 332 Q716 327 722 332"
+          stroke="#1A1A1A"
+          strokeWidth="2.2"
+          fill="none"
+        />
+        {/* Right lens */}
+        <ellipse
+          cx="740"
+          cy="332"
+          rx="18"
+          ry="11"
+          stroke="#1A1A1A"
+          strokeWidth="2.5"
+          fill="rgba(200,214,240,0.2)"
+        />
+        {/* Right arm */}
+        <line
+          x1="758"
+          y1="337"
+          x2="766"
+          y2="349"
+          stroke="#1A1A1A"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+        {/* Lens reflections */}
+        <path
+          d="M682 327 Q686 323 690 326"
+          stroke="rgba(255,255,255,0.6)"
+          strokeWidth="1.5"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <path
+          d="M730 327 Q734 323 738 326"
+          stroke="rgba(255,255,255,0.6)"
+          strokeWidth="1.5"
+          fill="none"
+          strokeLinecap="round"
+        />
+
+        {/* ════════════════════════════════════════
+            RIGHT FLOWER POT (lavender flowers)
+        ════════════════════════════════════════ */}
+        {/* Pot shadow */}
+        <ellipse cx="960" cy="350" rx="45" ry="6" fill="rgba(0,0,0,0.07)" />
+        {/* Pot body */}
+        <path
+          d="M928 342 Q920 320 922 296 Q924 282 942 278 Q960 275 978 278 Q994 282 996 296 Q998 320 992 342Z"
+          fill="url(#potGradR)"
+        />
+        {/* Pot rim */}
+        <ellipse cx="960" cy="278" rx="36" ry="8" fill="#AA88CC" />
+        <ellipse cx="960" cy="275" rx="32" ry="6" fill="#C0A0DC" />
+        {/* Pot base */}
+        <ellipse cx="960" cy="342" rx="32" ry="6" fill="#6A4A8A" />
+        {/* Soil */}
+        <ellipse cx="960" cy="275" rx="28" ry="5" fill="#5C3D1E" />
+        {/* Stems */}
+        <path
+          d="M960 275 Q954 252 950 230 Q946 210 948 192"
+          stroke="#5A8040"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          fill="none"
+        />
+        <path
+          d="M960 275 Q966 248 970 222 Q974 200 972 178"
+          stroke="#4A7030"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          fill="none"
+        />
+        <path
+          d="M960 275 Q960 252 960 235 Q960 215 962 198"
+          stroke="#5A8040"
+          strokeWidth="2"
+          strokeLinecap="round"
+          fill="none"
+        />
+        {/* Leaves */}
+        <path d="M950 230 Q938 222 932 210 Q942 205 952 215Z" fill="#5A8040" />
+        <path d="M970 222 Q982 212 988 200 Q977 198 969 208Z" fill="#4A7030" />
+        {/* RIGHT FLOWER POT - LAVENDER FLOWERS */}
+        <g
+          className="flower-sway-right"
+          style={{ transformOrigin: "960px 275px" }}
+        >
+          {/* Flower 1 (center) */}
+          <circle cx="962" cy="192" r="5" fill="#C084FC" opacity="0.9" />
+          <circle cx="962" cy="183" r="4.5" fill="#D8B4FE" opacity="0.85" />
+          <circle cx="955" cy="188" r="4.5" fill="#A855F7" opacity="0.85" />
+          <circle cx="969" cy="188" r="4.5" fill="#A855F7" opacity="0.85" />
+          <circle cx="955" cy="197" r="4.5" fill="#C084FC" opacity="0.8" />
+          <circle cx="969" cy="197" r="4.5" fill="#C084FC" opacity="0.8" />
+          <circle cx="962" cy="190" r="3.5" fill="#FDE68A" />
+          {/* Flower 2 */}
+          <circle cx="948" cy="185" r="4.5" fill="#C084FC" opacity="0.9" />
+          <circle cx="948" cy="177" r="4" fill="#D8B4FE" opacity="0.85" />
+          <circle cx="942" cy="181" r="4" fill="#A855F7" opacity="0.8" />
+          <circle cx="954" cy="181" r="4" fill="#B06ED4" opacity="0.8" />
+          <circle cx="948" cy="183" r="3" fill="#FDE68A" />
+          {/* Flower 3 */}
+          <circle cx="972" cy="173" r="4.5" fill="#D8B4FE" opacity="0.9" />
+          <circle cx="972" cy="165" r="4" fill="#C084FC" opacity="0.85" />
+          <circle cx="966" cy="169" r="4" fill="#A855F7" opacity="0.85" />
+          <circle cx="978" cy="169" r="4" fill="#A855F7" opacity="0.8" />
+          <circle cx="972" cy="171" r="3" fill="#FDE68A" />
+          {/* Small buds */}
+          <ellipse
+            cx="952"
+            cy="208"
+            rx="4"
+            ry="6"
+            fill="#C084FC"
+            opacity="0.7"
+          />
+          <ellipse
+            cx="968"
+            cy="205"
+            rx="3.5"
+            ry="5.5"
+            fill="#A855F7"
+            opacity="0.65"
+          />
+        </g>
+
+        {/* ════════════════════════════════════════
+            FISH BOWL (on desk, right area)
+        ════════════════════════════════════════ */}
+        {/* Bowl shadow */}
+        <ellipse cx="834" cy="354" rx="56" ry="8" fill="rgba(0,0,0,0.08)" />
+        {/* Bowl body */}
+        <ellipse
+          cx="834"
+          cy="296"
+          rx="54"
+          ry="56"
+          fill="rgba(186,220,255,0.12)"
+          stroke="#B8D8F0"
+          strokeWidth="2"
+        />
+        {/* Water */}
+        <ellipse
+          cx="834"
+          cy="316"
+          rx="50"
+          ry="36"
+          fill="rgba(176,216,255,0.18)"
+          clipPath="url(#bowlClip2)"
+        />
+        {/* Water shimmer line */}
+        <path
+          d="M786 288 Q808 282 834 284 Q860 282 882 288"
+          stroke="rgba(140,190,230,0.5)"
+          strokeWidth="1.5"
+          fill="none"
+          className="water-shimmer"
+        />
+        {/* Bowl base/neck */}
+        <ellipse
+          cx="834"
+          cy="348"
+          rx="30"
+          ry="8"
+          fill="rgba(186,220,255,0.25)"
+          stroke="#B8D8F0"
+          strokeWidth="1.5"
+        />
+        {/* Bowl top opening */}
+        <ellipse
+          cx="834"
+          cy="242"
+          rx="44"
+          ry="10"
+          fill="rgba(186,220,255,0.15)"
+          stroke="#C0DCEE"
+          strokeWidth="1.5"
+        />
+        {/* Glass highlight */}
+        <path
+          d="M796 262 Q800 244 820 238"
+          stroke="rgba(255,255,255,0.75)"
+          strokeWidth="3.5"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <path
+          d="M802 278 Q800 272 806 268"
+          stroke="rgba(255,255,255,0.5)"
+          strokeWidth="2"
+          fill="none"
+          strokeLinecap="round"
+        />
+        {/* Pebbles */}
+        <ellipse cx="818" cy="340" rx="5" ry="3" fill="#C8B88A" />
+        <ellipse cx="828" cy="344" rx="4.5" ry="2.5" fill="#BCAA80" />
+        <ellipse cx="838" cy="342" rx="5" ry="3" fill="#C8B88A" />
+        <ellipse cx="848" cy="344" rx="4" ry="2.5" fill="#BCAA80" />
+        {/* Seaweed */}
+        <path
+          d="M820 340 Q815 320 818 306 Q822 292 818 278"
+          stroke="#3A7A40"
+          strokeWidth="2"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <path
+          d="M848 340 Q853 320 849 306 Q845 292 850 278"
+          stroke="#4A8A50"
+          strokeWidth="1.8"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <ellipse
+          cx="815"
+          cy="280"
+          rx="8"
+          ry="3.5"
+          fill="#4A8A50"
+          transform="rotate(-35 815 280)"
+        />
+        <ellipse
+          cx="851"
+          cy="278"
+          rx="8"
+          ry="3.5"
+          fill="#3A7A40"
+          transform="rotate(30 851 278)"
+        />
+        {/* FISH (swimming) */}
+        <g clipPath="url(#bowlClip2)">
+          <g className="fish-swim" style={{ transformOrigin: "834px 310px" }}>
+            <ellipse cx="834" cy="310" rx="17" ry="8" fill="#E07A3A" />
+            <path d="M851 310 L864 301 L864 319Z" fill="#C85A20" />
+            <path d="M829 301 Q836 292 843 301" fill="#D06828" opacity="0.85" />
+            <path d="M829 319 Q836 326 843 319" fill="#D06828" opacity="0.65" />
+            <circle cx="821" cy="307" r="3" fill="white" />
+            <circle cx="820.5" cy="306.5" r="1.5" fill="#222222" />
+            <path
+              d="M816 312 Q818 315 821 312"
+              stroke="#B05018"
+              strokeWidth="1"
+              fill="none"
+            />
+            <path
+              d="M829 307 Q836 303 842 307"
+              stroke="rgba(255,255,255,0.3)"
+              strokeWidth="1.2"
+              fill="none"
+            />
+          </g>
+        </g>
+      </svg>
     </div>
   );
 }
 
-// ─── Wave Background ──────────────────────────────────────────────────────────
-function WaveBackground() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+// ─── Section reveal wrapper ────────────────────────────────────────────────────
+function Section({
+  id,
+  className = "",
+  style,
+  children,
+}: {
+  id: string;
+  className?: string;
+  style?: React.CSSProperties;
+  children: React.ReactNode;
+}) {
+  const ref = useRef<HTMLElement>(null);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let animationId: number;
-    let time = 0;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    const waves = [
-      {
-        color: "rgba(14,40,90,0.55)",
-        amp: 55,
-        freq: 0.005,
-        speed: 0.00025,
-        yOffset: 0.6,
-      },
-      {
-        color: "rgba(30,80,160,0.40)",
-        amp: 40,
-        freq: 0.008,
-        speed: 0.0003,
-        yOffset: 0.68,
-      },
-      {
-        color: "rgba(59,130,246,0.28)",
-        amp: 30,
-        freq: 0.011,
-        speed: 0.00035,
-        yOffset: 0.74,
-      },
-      {
-        color: "rgba(147,197,253,0.18)",
-        amp: 18,
-        freq: 0.016,
-        speed: 0.0004,
-        yOffset: 0.8,
-      },
-    ];
-
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      for (const wave of waves) {
-        const baseY = canvas.height * wave.yOffset;
-
-        ctx.beginPath();
-        ctx.moveTo(0, canvas.height);
-        for (let x = 0; x <= canvas.width; x += 2) {
-          const y =
-            baseY + Math.sin(x * wave.freq + time * wave.speed * 60) * wave.amp;
-          ctx.lineTo(x, y);
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          obs.disconnect();
         }
-        ctx.lineTo(canvas.width, canvas.height);
-        ctx.closePath();
-
-        const grad = ctx.createLinearGradient(
-          0,
-          baseY - wave.amp,
-          0,
-          canvas.height,
-        );
-        grad.addColorStop(0, wave.color);
-        grad.addColorStop(1, "rgba(5,5,15,0.6)");
-        ctx.fillStyle = grad;
-        ctx.fill();
-      }
-
-      time++;
-      animationId = requestAnimationFrame(draw);
-    };
-    draw();
-
-    return () => {
-      cancelAnimationFrame(animationId);
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-[1]"
-    />
-  );
-}
-
-// ─── Boat ─────────────────────────────────────────────────────────────────────
-function Boat() {
-  return (
-    <>
-      <style>{boatStyles}</style>
-      <div
-        className="boat-animate"
-        style={{
-          position: "fixed",
-          top: "62%",
-          zIndex: 2,
-          pointerEvents: "none",
-          width: "90px",
-        }}
-      >
-        <svg
-          role="img"
-          aria-label="Decorative sailing boat"
-          viewBox="0 0 90 60"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          width="90"
-          height="60"
-        >
-          <path
-            d="M44 8 L44 38 L62 38 Z"
-            fill="rgba(255,255,255,0.7)"
-            stroke="rgba(255,255,255,0.4)"
-            strokeWidth="0.8"
-          />
-          <path
-            d="M44 18 L44 38 L28 38 Z"
-            fill="rgba(167,139,250,0.55)"
-            stroke="rgba(167,139,250,0.3)"
-            strokeWidth="0.8"
-          />
-          <line
-            x1="44"
-            y1="6"
-            x2="44"
-            y2="40"
-            stroke="rgba(255,255,255,0.85)"
-            strokeWidth="1.5"
-          />
-          <path
-            d="M14 40 Q45 52 76 40 L70 48 Q45 58 20 48 Z"
-            fill="rgba(30,30,70,0.92)"
-            stroke="rgba(139,92,246,0.6)"
-            strokeWidth="1"
-          />
-          <path
-            d="M22 42 Q45 50 68 42"
-            stroke="rgba(139,92,246,0.4)"
-            strokeWidth="1"
-            fill="none"
-          />
-          <circle cx="50" cy="41" r="2.5" fill="rgba(250,204,21,0.6)" />
-        </svg>
-      </div>
-    </>
-  );
-}
-
-// ─── NavBar ───────────────────────────────────────────────────────────────────
-function NavBar() {
-  const [active, setActive] = useState("home");
-  const links = ["home", "resume", "education", "projects", "contact"];
-
-  const scroll = (id: string) => {
-    setActive(id);
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  return (
-    <nav
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-4"
-      style={{
-        background: "rgba(5,5,15,0.85)",
-        backdropFilter: "blur(12px)",
-        borderBottom: "1px solid rgba(139,92,246,0.2)",
-      }}
-    >
-      <span
-        className="font-bold text-xl"
-        style={{
-          background: "linear-gradient(90deg,#a855f7,#3b82f6)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-        }}
-      >
-        SS
-      </span>
-      <ul className="flex gap-6">
-        {links.map((l) => (
-          <li key={l}>
-            <button
-              type="button"
-              data-ocid={`nav.${l}.link`}
-              onClick={() => scroll(l)}
-              className="capitalize text-sm transition-colors"
-              style={{ color: active === l ? "#facc15" : "#94a3b8" }}
-            >
-              {l}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  );
-}
-
-const HERO_SUBTITLES = [
-  "Python Full Stack Developer",
-  "Web Application Builder",
-];
-
-// ─── Hero Section ─────────────────────────────────────────────────────────────
-function HeroSection() {
-  const [subIdx, setSubIdx] = useState(0);
-  const [subVisible, setSubVisible] = useState(true);
-  const { resumeExists } = useResumeExists();
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSubVisible(false);
-      setTimeout(() => {
-        setSubIdx((i) => (i + 1) % HERO_SUBTITLES.length);
-        setSubVisible(true);
-      }, 1500);
-    }, 10000);
-    return () => clearInterval(interval);
+      },
+      { threshold: 0.08 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
   }, []);
 
   return (
     <section
-      id="home"
-      className="relative z-10 min-h-screen flex flex-col items-center justify-center text-center px-4 pt-20"
+      ref={ref}
+      id={id}
+      style={style}
+      className={`transition-all duration-700 ease-out ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+      } ${className}`}
     >
-      <div className="mb-6">
-        <div
-          className="w-36 h-36 rounded-full mx-auto mb-4 overflow-hidden"
+      {children}
+    </section>
+  );
+}
+
+// ─── Navbar ───────────────────────────────────────────────────────────────────
+const NAV_ITEMS = [
+  { label: "Resume", href: "#resume" },
+  { label: "Projects", href: "#projects" },
+  { label: "Education", href: "#education" },
+  { label: "Contact", href: "#contact" },
+];
+
+function Navbar() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled ? "shadow-lg" : ""
+      }`}
+      style={{ backgroundColor: DARK }}
+    >
+      <nav className="max-w-6xl mx-auto px-6 h-[62px] flex items-center justify-between">
+        {/* Brand */}
+        <a
+          href="#home"
+          className="text-white font-bold text-base tracking-wide hover:opacity-80 transition-opacity"
           style={{
-            boxShadow: "0 0 40px rgba(139,92,246,0.5)",
-            border: "3px solid rgba(139,92,246,0.6)",
+            fontFamily: "'Playfair Display', Georgia, serif",
+            letterSpacing: "0.04em",
           }}
+          data-ocid="nav.link"
         >
-          <img
-            src="/assets/uploads/WhatsApp-Image-2026-03-03-at-12.15.22-PM-1.jpeg"
-            alt="Sanjay Sugumar"
-            className="w-full h-full object-cover"
-          />
+          Sanjay Sugumar
+        </a>
+
+        {/* Desktop links */}
+        <div className="hidden md:flex items-center gap-8">
+          {NAV_ITEMS.map((item) => (
+            <a
+              key={item.label}
+              href={item.href}
+              className="nav-link text-white/85 text-sm font-medium tracking-wide hover:text-white transition-colors"
+              data-ocid={`nav.${item.label.toLowerCase()}.link`}
+            >
+              {item.label}
+            </a>
+          ))}
         </div>
-      </div>
 
-      {/* Neon cycling name */}
-      <h1
-        className="neon-name text-5xl md:text-7xl mb-3"
-        style={{ minHeight: "1.2em", textAlign: "center" }}
-      >
-        Sanjay Sugumar
-      </h1>
-
-      {/* Fade-cycling subtitle */}
-      <p
-        className="subtitle-fade text-xl md:text-2xl mb-2 font-medium"
-        style={{
-          color: "#22d3ee",
-          opacity: subVisible ? 1 : 0,
-          minHeight: "2rem",
-          textAlign: "center",
-          textShadow: "0 0 10px rgba(34,211,238,0.5)",
-        }}
-      >
-        {HERO_SUBTITLES[subIdx]}
-      </p>
-
-      <p
-        className="text-sm md:text-base max-w-xl mx-auto mb-8"
-        style={{ color: "#94a3b8" }}
-      >
-        Building elegant, scalable web applications with passion and precision.
-      </p>
-
-      {/* Primary action buttons */}
-      <div className="flex flex-wrap gap-4 justify-center">
+        {/* Mobile hamburger */}
         <button
           type="button"
-          data-ocid="hero.contact.primary_button"
-          onClick={() =>
-            document
-              .getElementById("contact")
-              ?.scrollIntoView({ behavior: "smooth" })
-          }
-          className="px-8 py-3 rounded-full font-semibold text-black transition-transform hover:scale-105"
-          style={{
-            background: "linear-gradient(90deg,#facc15,#f97316)",
-            boxShadow: "0 4px 20px rgba(250,204,21,0.4)",
-          }}
+          className="md:hidden text-white p-2 rounded-md hover:bg-white/10 transition-colors"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-label="Toggle navigation"
+          aria-expanded={menuOpen}
+          data-ocid="nav.toggle"
         >
-          Get in Touch
+          {menuOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
-        <a
-          href="https://github.com/sanjaysugumar2005"
-          target="_blank"
-          rel="noopener noreferrer"
-          data-ocid="hero.github.link"
-          className="flex items-center gap-2 px-8 py-3 rounded-full font-semibold transition-transform hover:scale-105"
-          style={{
-            border: "2px solid rgba(139,92,246,0.6)",
-            color: "#a78bfa",
-            background: "rgba(139,92,246,0.1)",
-          }}
-        >
-          <GitHubIcon size={18} />
-          GitHub
-        </a>
-      </div>
+      </nav>
 
-      {/* Resume buttons — only shown when file exists */}
-      {resumeExists && (
-        <div className="flex flex-wrap gap-4 justify-center mt-4">
-          <a
-            href="/resume/sanjayresume.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            data-ocid="hero.resume_view.button"
-            className="resume-btn-view"
+      {/* Mobile menu */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.22 }}
+            className="md:hidden overflow-hidden border-t border-white/10"
+            style={{ backgroundColor: "#1A1A1A" }}
           >
-            📄 View Resume
-          </a>
-          <a
-            href="/resume/sanjayresume.pdf"
-            download="sanjayresume.pdf"
-            data-ocid="hero.resume_download.button"
-            className="resume-btn-download"
+            <div className="flex flex-col px-6 py-4 gap-1">
+              {NAV_ITEMS.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  className="text-white/80 text-base font-medium hover:text-white transition-colors py-2.5 border-b border-white/5 last:border-0"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {item.label}
+                </a>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
+  );
+}
+
+// ─── Hero Section ─────────────────────────────────────────────────────────────
+function HeroSection() {
+  return (
+    <section
+      id="home"
+      className="min-h-screen flex flex-col items-center justify-center pt-[62px]"
+      style={{ backgroundColor: LAVENDER }}
+    >
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-12 flex flex-col items-center gap-6">
+        {/* Desk illustration */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.9, ease: "easeOut", delay: 0.2 }}
+          className="w-full"
+        >
+          <DeskIllustration />
+        </motion.div>
+
+        {/* Name + resume buttons below desk */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.6 }}
+          className="flex flex-col items-center gap-5 text-center"
+        >
+          <h1
+            className="text-4xl sm:text-5xl font-bold text-black leading-tight tracking-tight"
+            style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
           >
-            ⬇ Download Resume
-          </a>
-        </div>
-      )}
+            Sanjay Sugumar
+          </h1>
+          <p className="text-base text-black/65 max-w-md">
+            Python Full Stack Developer &amp; Web Application Builder
+          </p>
+          <div className="flex flex-wrap justify-center gap-3 mt-1">
+            <a
+              href="/resume/sanjayresume.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-xl text-white text-sm font-semibold transition-all hover:opacity-90 hover:scale-[1.03] active:scale-95 shadow-md"
+              style={{ backgroundColor: DARK }}
+              data-ocid="hero.resume.button"
+            >
+              <ExternalLink size={15} />
+              View Resume
+            </a>
+            <a
+              href="/resume/sanjayresume.pdf"
+              download
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-xl text-black text-sm font-semibold border-2 border-black/80 transition-all hover:bg-black hover:text-white hover:scale-[1.03] active:scale-95"
+              data-ocid="hero.download.button"
+            >
+              <Download size={15} />
+              Download Resume
+            </a>
+          </div>
+        </motion.div>
+
+        {/* Scroll indicator */}
+        <motion.a
+          href="#resume"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
+          className="mt-4 flex flex-col items-center gap-1 text-black/35 hover:text-black/55 transition-colors"
+        >
+          <span className="text-[10px] tracking-widest uppercase">Scroll</span>
+          <ChevronDown size={16} className="animate-bounce" />
+        </motion.a>
+      </div>
     </section>
+  );
+}
+
+// ─── Section heading helper ───────────────────────────────────────────────────
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <h2
+      className="text-3xl sm:text-4xl font-bold text-black text-center mb-3"
+      style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+    >
+      {children}
+    </h2>
   );
 }
 
 // ─── Resume Section ───────────────────────────────────────────────────────────
 function ResumeSection() {
-  const { resumeExists } = useResumeExists();
+  return (
+    <Section
+      id="resume"
+      className="py-24"
+      style={{ backgroundColor: LAVENDER }}
+    >
+      <div className="max-w-3xl mx-auto px-6">
+        <SectionHeading>Resume</SectionHeading>
+        <p className="text-black/50 text-center text-sm mb-12">
+          View or download my latest resume
+        </p>
+
+        <motion.div
+          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="bg-white rounded-2xl p-10 shadow-sm text-center"
+          data-ocid="resume.card"
+        >
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 text-black"
+            style={{ backgroundColor: "#EDE9F8" }}
+          >
+            <BookOpen size={28} />
+          </div>
+          <h3
+            className="text-xl font-bold text-black mb-1"
+            style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+          >
+            Sanjay Sugumar
+          </h3>
+          <p className="text-black/50 text-sm mb-8">
+            Python Full Stack Developer &amp; Web Application Builder
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <a
+              href="/resume/sanjayresume.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-8 py-3 rounded-xl text-white text-sm font-semibold transition-all hover:opacity-90 hover:scale-[1.03] shadow-sm"
+              style={{ backgroundColor: DARK }}
+              data-ocid="resume.view.button"
+            >
+              <ExternalLink size={15} />
+              View Resume
+            </a>
+            <a
+              href="/resume/sanjayresume.pdf"
+              download
+              className="inline-flex items-center gap-2 px-8 py-3 rounded-xl border-2 border-black text-black text-sm font-semibold transition-all hover:bg-black hover:text-white hover:scale-[1.03]"
+              data-ocid="resume.download.button"
+            >
+              <Download size={15} />
+              Download Resume
+            </a>
+          </div>
+        </motion.div>
+      </div>
+    </Section>
+  );
+}
+
+// ─── Projects Section ─────────────────────────────────────────────────────────
+const LANG_COLOR: Record<string, string> = {
+  Python: "#3572A5",
+  JavaScript: "#D4A017",
+  TypeScript: "#3178C6",
+  HTML: "#E34C26",
+  CSS: "#563D7C",
+  Java: "#B07219",
+  "C++": "#F34B7D",
+  Go: "#00ADD8",
+  Rust: "#DEA584",
+};
+
+function ProjectsSection() {
+  const [repos, setRepos] = useState<GitHubRepo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    fetch(
+      "https://api.github.com/users/sanjaysugumar2005/repos?sort=updated&per_page=6",
+    )
+      .then((r) => {
+        if (!r.ok) throw new Error("fetch failed");
+        return r.json();
+      })
+      .then((data: unknown) => {
+        if (Array.isArray(data)) setRepos(data as GitHubRepo[]);
+        else setError(true);
+      })
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
-    <section
-      id="resume"
-      className="relative z-10 py-24 px-4 max-w-3xl mx-auto text-center"
+    <Section
+      id="projects"
+      className="py-24"
+      style={{ backgroundColor: LAVENDER }}
     >
-      <h2 className="text-4xl font-bold mb-4" style={{ color: "#60a5fa" }}>
-        Resume
-      </h2>
-      <p className="mb-10" style={{ color: "#94a3b8" }}>
-        A summary of my skills, experience, and qualifications.
-      </p>
-      {resumeExists ? (
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+      <div className="max-w-6xl mx-auto px-6">
+        <SectionHeading>Projects</SectionHeading>
+        <p className="text-black/50 text-center text-sm mb-12">
+          Auto-fetched from{" "}
           <a
-            href="/resume/sanjayresume.pdf"
+            href="https://github.com/sanjaysugumar2005"
             target="_blank"
             rel="noopener noreferrer"
-            data-ocid="resume.view.primary_button"
-            className="resume-btn-view"
+            className="underline hover:text-black/70 transition-colors"
           >
-            📄 View Resume
+            GitHub
           </a>
-          <a
-            href="/resume/sanjayresume.pdf"
-            download="sanjayresume.pdf"
-            data-ocid="resume.download.secondary_button"
-            className="resume-btn-download"
+        </p>
+
+        {loading && (
+          <div
+            className="flex justify-center py-20"
+            data-ocid="projects.loading_state"
           >
-            ⬇ Download Resume (PDF)
-          </a>
+            <div className="w-10 h-10 border-2 border-black/20 border-t-black/60 rounded-full animate-spin" />
+          </div>
+        )}
+
+        {error && (
+          <div
+            className="text-center text-black/50 py-16"
+            data-ocid="projects.error_state"
+          >
+            <p className="mb-3">Could not load projects.</p>
+            <a
+              href="https://github.com/sanjaysugumar2005"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-black hover:underline"
+            >
+              <SiGithub size={16} />
+              Visit GitHub Profile
+            </a>
+          </div>
+        )}
+
+        {!loading && !error && repos.length === 0 && (
+          <p
+            className="text-center text-black/50 py-16"
+            data-ocid="projects.empty_state"
+          >
+            No public repositories found.
+          </p>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {repos.map((repo, i) => (
+            <motion.div
+              key={repo.id}
+              initial={{ opacity: 0, y: 22 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.07, duration: 0.5 }}
+              className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col"
+              data-ocid={`projects.item.${i + 1}`}
+            >
+              <div className="flex items-start justify-between gap-2 mb-3">
+                <h3 className="font-bold text-black text-sm leading-snug flex-1">
+                  {repo.name}
+                </h3>
+                {repo.language && (
+                  <span
+                    className="shrink-0 text-[11px] px-2.5 py-0.5 rounded-full font-semibold text-white"
+                    style={{
+                      backgroundColor: LANG_COLOR[repo.language] ?? "#888888",
+                    }}
+                  >
+                    {repo.language}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-black/55 mb-4 flex-1 leading-relaxed">
+                {repo.description ?? "No description provided."}
+              </p>
+              <div className="flex items-center justify-between mt-auto pt-3 border-t border-black/6">
+                <a
+                  href={repo.html_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-black hover:underline"
+                  data-ocid={`projects.github.link.${i + 1}`}
+                >
+                  <SiGithub size={13} />
+                  View on GitHub
+                </a>
+                {repo.stargazers_count > 0 && (
+                  <span className="inline-flex items-center gap-1 text-xs text-black/45">
+                    <Star size={11} />
+                    {repo.stargazers_count}
+                  </span>
+                )}
+              </div>
+            </motion.div>
+          ))}
         </div>
-      ) : (
-        <p style={{ color: "#64748b" }}>Resume coming soon.</p>
-      )}
-    </section>
+      </div>
+    </Section>
   );
 }
 
 // ─── Education Section ────────────────────────────────────────────────────────
 function EducationSection() {
+  const items = [
+    {
+      icon: BookOpen,
+      level: "Higher Secondary Education",
+      institution: "Krishnaswamy Higher Secondary School",
+      location: "Cuddalore, Tamil Nadu",
+      degree: "Higher Secondary Certificate",
+      year: "Completed 2023",
+    },
+    {
+      icon: GraduationCap,
+      level: "Undergraduate Degree",
+      institution: "A.M. Jain College",
+      location: "Meenambakkam, Chennai",
+      degree: "BCA – Bachelor of Computer Applications",
+      year: "Pursuing",
+    },
+  ];
+
   return (
-    <section
+    <Section
       id="education"
-      className="relative z-10 py-24 px-4 max-w-4xl mx-auto"
+      className="py-24"
+      style={{ backgroundColor: LAVENDER }}
     >
-      <h2
-        className="text-4xl font-bold text-center mb-3"
-        style={{ color: "#60a5fa" }}
-      >
-        Education
-      </h2>
-      <p className="text-center mb-12 text-sm" style={{ color: "#64748b" }}>
-        My academic journey
-      </p>
-      <div className="grid sm:grid-cols-2 gap-8">
-        <div
-          data-ocid="education.item.1"
-          className="rounded-2xl p-7 transition-transform hover:-translate-y-2 cursor-default"
-          style={{
-            background: "rgba(10,10,30,0.75)",
-            border: "1px solid rgba(139,92,246,0.35)",
-            boxShadow:
-              "0 4px 32px rgba(139,92,246,0.15), 0 1px 0 rgba(139,92,246,0.2) inset",
-            backdropFilter: "blur(12px)",
-          }}
-        >
-          <div className="flex items-start justify-between mb-4">
-            <span
-              className="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full"
-              style={{
-                background: "rgba(250,204,21,0.15)",
-                color: "#facc15",
-                border: "1px solid rgba(250,204,21,0.3)",
-              }}
-            >
-              School
-            </span>
-            <span className="text-3xl">🏫</span>
-          </div>
-          <h3 className="text-xl font-bold mb-1" style={{ color: "#e2e8f0" }}>
-            Krishnaswamy Higher Secondary School
-          </h3>
-          <p className="text-sm mb-4" style={{ color: "#94a3b8" }}>
-            📍 Cuddalore, Tamil Nadu
-          </p>
-          <div
-            className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full"
-            style={{
-              background: "rgba(250,204,21,0.1)",
-              color: "#fde047",
-              border: "1px solid rgba(250,204,21,0.25)",
-            }}
-          >
-            <span>✓</span> Completed 2023
-          </div>
-        </div>
-        <div
-          data-ocid="education.item.2"
-          className="rounded-2xl p-7 transition-transform hover:-translate-y-2 cursor-default"
-          style={{
-            background: "rgba(10,10,30,0.75)",
-            border: "1px solid rgba(59,130,246,0.35)",
-            boxShadow:
-              "0 4px 32px rgba(59,130,246,0.15), 0 1px 0 rgba(59,130,246,0.2) inset",
-            backdropFilter: "blur(12px)",
-          }}
-        >
-          <div className="flex items-start justify-between mb-4">
-            <span
-              className="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full"
-              style={{
-                background: "rgba(250,204,21,0.15)",
-                color: "#facc15",
-                border: "1px solid rgba(250,204,21,0.3)",
-              }}
-            >
-              College
-            </span>
-            <span className="text-3xl">🎓</span>
-          </div>
-          <h3 className="text-xl font-bold mb-1" style={{ color: "#e2e8f0" }}>
-            A.M. Jain College
-          </h3>
-          <p className="text-sm mb-1 font-medium" style={{ color: "#a78bfa" }}>
-            BCA – Bachelor of Computer Applications
-          </p>
-          <p className="text-sm mb-4" style={{ color: "#94a3b8" }}>
-            📍 Meenambakkam, Chennai
-          </p>
-          <div
-            className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full"
-            style={{
-              background: "rgba(59,130,246,0.12)",
-              color: "#93c5fd",
-              border: "1px solid rgba(59,130,246,0.3)",
-            }}
-          >
-            <span>●</span> Currently Pursuing
-          </div>
+      <div className="max-w-4xl mx-auto px-6">
+        <SectionHeading>Education</SectionHeading>
+        <p className="text-black/50 text-center text-sm mb-12">
+          Academic background &amp; qualifications
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {items.map((item, i) => {
+            const Icon = item.icon;
+            return (
+              <motion.div
+                key={item.institution}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.12, duration: 0.55 }}
+                className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow"
+                data-ocid={`education.item.${i + 1}`}
+              >
+                <div
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 text-black"
+                  style={{ backgroundColor: "#EDE9F8" }}
+                >
+                  <Icon size={26} />
+                </div>
+                <span className="block text-[10px] font-bold uppercase tracking-widest text-black/38 mb-2">
+                  {item.level}
+                </span>
+                <h3
+                  className="text-base font-bold text-black mb-1 leading-snug"
+                  style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                >
+                  {item.institution}
+                </h3>
+                <p className="text-sm text-black/55 mb-2">{item.location}</p>
+                <p className="text-sm font-medium text-black/75 mb-4">
+                  {item.degree}
+                </p>
+                <span
+                  className="inline-block text-xs font-semibold px-3 py-1 rounded-full text-black/80"
+                  style={{ backgroundColor: "#EDE9F8" }}
+                >
+                  {item.year}
+                </span>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
-    </section>
-  );
-}
-
-// ─── Language Color Map ───────────────────────────────────────────────────────
-const langColor: Record<string, string> = {
-  Python: "#3b82f6",
-  TypeScript: "#60a5fa",
-  JavaScript: "#facc15",
-  HTML: "#f97316",
-  CSS: "#a855f7",
-  Java: "#ef4444",
-  "C++": "#06b6d4",
-  Go: "#34d399",
-  Rust: "#fb923c",
-  Ruby: "#f43f5e",
-  PHP: "#818cf8",
-  Shell: "#4ade80",
-};
-
-// ─── Projects Section ─────────────────────────────────────────────────────────
-function SkeletonCard() {
-  return (
-    <div
-      className="rounded-2xl p-6 flex flex-col"
-      style={{
-        background: "rgba(10,10,30,0.75)",
-        border: "1px solid rgba(59,130,246,0.15)",
-        backdropFilter: "blur(12px)",
-      }}
-    >
-      <div className="shimmer rounded-lg h-5 w-3/5 mb-4" />
-      <div className="shimmer rounded-lg h-3 w-full mb-2" />
-      <div className="shimmer rounded-lg h-3 w-4/5 mb-6" />
-      <div className="shimmer rounded-lg h-3 w-1/3 mb-6" />
-      <div className="shimmer rounded-full h-10 w-full mt-auto" />
-    </div>
-  );
-}
-
-function ProjectsSection() {
-  const { repos, loading, error, retry } = useGitHubRepos();
-
-  return (
-    <section
-      id="projects"
-      className="relative z-10 py-24 px-4 max-w-5xl mx-auto"
-    >
-      <h2
-        className="text-4xl font-bold text-center mb-3"
-        style={{ color: "#60a5fa" }}
-      >
-        Projects
-      </h2>
-      <p className="text-center mb-12 text-sm" style={{ color: "#64748b" }}>
-        My public GitHub repositories
-      </p>
-
-      {loading && (
-        <div
-          data-ocid="projects.loading_state"
-          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          <SkeletonCard />
-          <SkeletonCard />
-          <SkeletonCard />
-        </div>
-      )}
-
-      {!loading && error && (
-        <div
-          data-ocid="projects.error_state"
-          className="text-center py-16 flex flex-col items-center gap-4"
-        >
-          <p className="text-lg" style={{ color: "#f87171" }}>
-            ⚠️ {error}
-          </p>
-          <button
-            type="button"
-            data-ocid="projects.retry.button"
-            onClick={retry}
-            className="px-6 py-2.5 rounded-full font-semibold text-black transition-transform hover:scale-105"
-            style={{
-              background: "linear-gradient(90deg,#facc15,#f97316)",
-              boxShadow: "0 4px 16px rgba(250,204,21,0.3)",
-            }}
-          >
-            Retry
-          </button>
-        </div>
-      )}
-
-      {!loading && !error && repos.length === 0 && (
-        <div
-          data-ocid="projects.empty_state"
-          className="text-center py-16"
-          style={{ color: "#64748b" }}
-        >
-          <p className="text-lg">No public repositories found.</p>
-        </div>
-      )}
-
-      {!loading && !error && repos.length > 0 && (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {repos.map((repo, i) => (
-            <div
-              key={repo.id}
-              data-ocid={`projects.item.${i + 1}`}
-              className="rounded-2xl p-6 flex flex-col group transition-all duration-300 hover:-translate-y-2"
-              style={{
-                background: "rgba(10,10,30,0.75)",
-                border: "1px solid rgba(59,130,246,0.2)",
-                boxShadow: "0 4px 24px rgba(59,130,246,0.08)",
-                backdropFilter: "blur(12px)",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLDivElement).style.border =
-                  "1px solid rgba(139,92,246,0.5)";
-                (e.currentTarget as HTMLDivElement).style.boxShadow =
-                  "0 8px 40px rgba(139,92,246,0.2)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLDivElement).style.border =
-                  "1px solid rgba(59,130,246,0.2)";
-                (e.currentTarget as HTMLDivElement).style.boxShadow =
-                  "0 4px 24px rgba(59,130,246,0.08)";
-              }}
-            >
-              <div className="flex items-start justify-between mb-3">
-                <h3
-                  className="text-base font-bold group-hover:text-yellow-400 transition-colors leading-tight pr-2"
-                  style={{ color: "#e2e8f0" }}
-                >
-                  {repo.name}
-                </h3>
-                <span style={{ color: "#6b7280", flexShrink: 0 }}>
-                  <GitHubIcon size={17} />
-                </span>
-              </div>
-
-              <p className="text-sm mb-4 flex-1" style={{ color: "#94a3b8" }}>
-                {repo.description ?? "No description provided."}
-              </p>
-
-              <div className="flex items-center gap-3 mb-5 flex-wrap">
-                {repo.language && (
-                  <span
-                    className="flex items-center gap-1.5 text-xs"
-                    style={{ color: "#94a3b8" }}
-                  >
-                    <span
-                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                      style={{
-                        background: langColor[repo.language] ?? "#6b7280",
-                      }}
-                    />
-                    {repo.language}
-                  </span>
-                )}
-                {repo.stargazers_count > 0 && (
-                  <span
-                    className="flex items-center gap-1 text-xs"
-                    style={{ color: "#fde047" }}
-                  >
-                    ★ {repo.stargazers_count}
-                  </span>
-                )}
-              </div>
-
-              <a
-                href={repo.html_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-ocid={`projects.github.link.${i + 1}`}
-                className="flex items-center justify-center gap-2 rounded-full py-2.5 px-5 font-semibold text-sm transition-all hover:scale-105"
-                style={{
-                  background: "linear-gradient(90deg,#facc15,#f97316)",
-                  color: "#000",
-                  boxShadow: "0 4px 16px rgba(250,204,21,0.3)",
-                }}
-              >
-                <GitHubIcon size={15} />
-                View on GitHub
-              </a>
-            </div>
-          ))}
-        </div>
-      )}
-    </section>
+    </Section>
   );
 }
 
 // ─── Contact Section ──────────────────────────────────────────────────────────
 function ContactSection() {
   return (
-    <section id="contact" className="relative z-10 py-24 px-4">
-      <h2
-        className="text-4xl font-bold text-center mb-4"
-        style={{ color: "#60a5fa" }}
-      >
-        Contact
-      </h2>
-      <p className="text-center mb-12" style={{ color: "#94a3b8" }}>
-        Have a project in mind? Let's talk.
-      </p>
+    <Section
+      id="contact"
+      className="py-24"
+      style={{ backgroundColor: LAVENDER }}
+    >
+      <div className="max-w-2xl mx-auto px-6 text-center">
+        <SectionHeading>Get In Touch</SectionHeading>
+        <p className="text-black/50 text-sm mb-12 max-w-xs mx-auto">
+          Have a project in mind? Let's talk on Telegram.
+        </p>
 
-      <div className="flex flex-col items-center justify-center gap-8">
-        <a
-          href="https://t.me/+T-DXigqqceI1ODBl"
-          target="_blank"
-          rel="noopener noreferrer"
-          data-ocid="contact.telegram.button"
-          className="telegram-btn"
+        <div
+          className="rounded-3xl p-14"
+          style={{ backgroundColor: "#BEBDE0" }}
+          data-ocid="contact.card"
         >
-          <TelegramIcon size={26} />
-          Message Me on Telegram
-        </a>
+          <a
+            href="https://t.me/+T-DXigqqceI1ODBl"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="telegram-btn inline-flex items-center gap-3 px-10 py-4 rounded-2xl text-white font-bold text-base shadow-lg"
+            style={{ backgroundColor: "#0088CC" }}
+            data-ocid="contact.telegram.button"
+          >
+            <SiTelegram size={22} />
+            Message Me on Telegram
+          </a>
+        </div>
       </div>
-    </section>
+    </Section>
   );
 }
 
 // ─── Footer ───────────────────────────────────────────────────────────────────
 function Footer() {
+  const year = new Date().getFullYear();
+  const hostname =
+    typeof window !== "undefined" ? window.location.hostname : "";
   return (
-    <footer
-      className="relative z-10 py-8 px-4"
-      style={{ borderTop: "1px solid rgba(139,92,246,0.15)" }}
-    >
-      <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p className="text-sm" style={{ color: "#475569" }}>
-          © {new Date().getFullYear()} Sanjay Sugumar. Built with ❤️ using{" "}
+    <footer className="py-8 px-6" style={{ backgroundColor: DARK }}>
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+        <p className="text-white/65 text-sm">
+          © {year} Sanjay Sugumar. All rights reserved.
+        </p>
+        <div className="flex items-center gap-6">
           <a
-            href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
+            href="https://github.com/sanjaysugumar2005"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: "#60a5fa" }}
+            className="text-white/55 hover:text-white transition-colors"
+            aria-label="GitHub profile"
+            data-ocid="footer.github.link"
           >
-            caffeine.ai
+            <SiGithub size={19} />
           </a>
-        </p>
-        <a
-          href="https://github.com/sanjaysugumar2005"
-          target="_blank"
-          rel="noopener noreferrer"
-          data-ocid="footer.github.link"
-          className="flex items-center gap-2 text-sm transition-colors hover:text-purple-400"
-          style={{ color: "#64748b" }}
-        >
-          <GitHubIcon size={16} />
-          github.com/sanjaysugumar2005
-        </a>
+          <a
+            href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(hostname)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white/40 hover:text-white/70 text-xs transition-colors"
+          >
+            Built with ♥ using caffeine.ai
+          </a>
+        </div>
       </div>
     </footer>
   );
@@ -1063,18 +1287,15 @@ function Footer() {
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   return (
-    <div
-      style={{ background: "#05050f", minHeight: "100vh", color: "#e2e8f0" }}
-    >
-      <SkyBackground />
-      <WaveBackground />
-      <Boat />
-      <NavBar />
-      <HeroSection />
-      <ResumeSection />
-      <EducationSection />
-      <ProjectsSection />
-      <ContactSection />
+    <div className="min-h-screen" style={{ backgroundColor: LAVENDER }}>
+      <Navbar />
+      <main>
+        <HeroSection />
+        <ResumeSection />
+        <ProjectsSection />
+        <EducationSection />
+        <ContactSection />
+      </main>
       <Footer />
     </div>
   );
