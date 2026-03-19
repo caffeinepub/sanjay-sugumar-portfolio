@@ -38,62 +38,22 @@ export default {
         border: "oklch(var(--border) / <alpha-value>)",
         input: "oklch(var(--input) / <alpha-value>)",
         ring: "oklch(var(--ring) / <alpha-value>)",
-        navbar: "oklch(var(--navbar) / <alpha-value>)",
+        lavender: "#E6E6FA",
       },
       fontFamily: {
-        display: ["Bricolage Grotesque", "Inter", "system-ui", "sans-serif"],
-        body: ["Inter", "Plus Jakarta Sans", "system-ui", "sans-serif"],
-        mono: ["Fira Code", "JetBrains Mono", "monospace"],
+        sans: ["'Plus Jakarta Sans'", "'Segoe UI'", "Arial", "sans-serif"],
+        display: ["'Plus Jakarta Sans'", "'Segoe UI'", "Arial", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-        "2xl": "1rem",
+        md: "calc(var(--radius) - 4px)",
+        sm: "calc(var(--radius) - 8px)",
+        "2xl": "1.25rem",
         "3xl": "1.5rem",
       },
       boxShadow: {
-        card: "0 2px 12px 0 rgba(100, 80, 160, 0.08), 0 1px 3px 0 rgba(100, 80, 160, 0.06)",
-        "card-hover":
-          "0 8px 32px 0 rgba(100, 80, 160, 0.14), 0 2px 8px 0 rgba(100, 80, 160, 0.1)",
-        glass: "0 8px 32px rgba(100, 80, 180, 0.1)",
-      },
-      animation: {
-        blink: "blink 1s step-end infinite",
-        "fade-in": "fadeInUp 0.65s ease-out forwards",
-        float: "float 4s ease-in-out infinite",
-        "glow-pulse": "glow-pulse 2.5s ease-in-out infinite",
-        "telegram-pulse": "telegram-pulse 3s ease-in-out infinite",
-      },
-      keyframes: {
-        blink: {
-          "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0" },
-        },
-        fadeInUp: {
-          from: { opacity: "0", transform: "translateY(30px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
-        },
-        float: {
-          "0%, 100%": { transform: "translateY(0px)" },
-          "50%": { transform: "translateY(-12px)" },
-        },
-        "glow-pulse": {
-          "0%, 100%": {
-            boxShadow: "0 8px 32px oklch(0.44 0.19 294 / 0.5)",
-          },
-          "50%": {
-            boxShadow:
-              "0 8px 48px oklch(0.44 0.19 294 / 0.8), 0 0 60px oklch(0.44 0.19 294 / 0.3)",
-          },
-        },
-        "telegram-pulse": {
-          "0%, 100%": { boxShadow: "0 4px 20px rgba(0, 136, 204, 0.4)" },
-          "50%": {
-            boxShadow:
-              "0 4px 40px rgba(0, 136, 204, 0.75), 0 0 60px rgba(0, 136, 204, 0.3)",
-          },
-        },
+        card: "0 4px 16px rgba(0,0,0,0.08)",
+        "card-hover": "0 8px 24px rgba(0,0,0,0.12)",
       },
     },
   },

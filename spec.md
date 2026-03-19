@@ -1,45 +1,36 @@
-# Sanjay Sugumar Portfolio – Ultra-Premium Redesign
+# Sanjay Sugumar Portfolio
 
 ## Current State
-The portfolio is a clean lavender site with a static workspace hero image, card-based sections, and typing animation. It has sections for Summary, Skills, Projects, Education, Additional Info, and Contact. An ATS resume page exists at `/resume`.
+Existing portfolio with lavender background, cinematic beach night scene, glassmorphism UI, multiple hero variants, and resume integration.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Glassmorphism UI cards (backdrop-blur + transparency + soft borders)
-- Mouse parallax effect on hero section
-- Scroll-triggered fade-in animations for all sections
-- 3D card hover lift effect (perspective transform)
-- Dark mode toggle with smooth transition
-- Floating monitor animation in hero (subtle CSS float)
-- Glow/shimmer hover effect on buttons
-- Blinking cursor in typing animation loop
-- Circular profile image displayed on the monitor screen
-- Depth blur effect on background for premium feel
-- LinkedIn contact link
-- "View My Work" button scrolling to projects
-- "Download Resume" button linked to PDF
+- Centered desktop monitor UI in hero with white body, #f3e8ff screen, purple text, JS typing animation (letter-by-letter, blinking cursor, loop)
+- Projects section: 2 cards (Personal Portfolio Website, Basic Python Programs) each with View on GitHub button and 'View all on GitHub →' link
+- Education section: 2 entries (BCA at A.M. Jain College, HSC at Krishnaswamy Higher Secondary School)
+- Contact section: LinkedIn, GitHub, Email in that order
+- Footer: © 2026 Sanjay Sugumar · Built with ❤️
 
 ### Modify
-- Hero: Replace static image with SVG/CSS 3D desk scene featuring monitor + keyboard + mouse. Monitor screen shows circular profile photo + typing animation.
-- All cards: Apply glassmorphism (bg-white/10, backdrop-blur, border-white/20)
-- Navbar: Add dark mode toggle button
-- Buttons: Add glow animation on hover
-- Typing text: Change to "Hi and hello! I'm Sanjay Sugumar — glad you're here."
-- Hero title/subtitle: Remove from above monitor, show inline on monitor screen
+- Full redesign: flat lavender (#E6E6FA) background, no gradients
+- Hero: name 'Sanjay Sugumar', subtitle 'Python Full Stack Developer & Web Application Builder'
+- Hero buttons: View Resume + Download Resume only (no LinkedIn/GitHub in hero)
+- All sections use white boxes, black text, soft shadows, rounded corners
+- Clean sans-serif font throughout
 
 ### Remove
-- Plain opaque card backgrounds
-- Static workspace image in hero
+- Beach night scene, glassmorphism effects, dark theme, all previous hero variants
+- LinkedIn/GitHub buttons from hero
 
 ## Implementation Plan
-1. Redesign `index.css` with glassmorphism tokens, dark mode CSS variables, float/glow keyframes
-2. Rewrite `App.tsx` with:
-   - Dark mode state + toggle in Navbar
-   - Hero section: SVG/CSS 3D desk scene, floating animation, mouse parallax via JS
-   - Monitor screen: circular profile photo + typing loop
-   - All sections: IntersectionObserver fade-in on scroll
-   - Glassmorphism SectionCard with 3D hover lift
-   - Buttons with glow animation
-   - Updated contact with LinkedIn
-3. Generate new 3D workspace hero image
+1. Replace App.tsx with clean single-page layout
+2. Lavender (#E6E6FA) body background, no gradients
+3. Fixed navbar: Sanjay Sugumar | Resume | Projects | Education | Contact
+4. Hero: monitor UI (white body, #f3e8ff screen, purple typing text), name, subtitle, View Resume + Download Resume buttons
+5. Projects section: 2 white cards with tags and View on GitHub buttons, 'View all on GitHub →' link
+6. Education section: 2 white cards
+7. Contact section: LinkedIn, GitHub, Email links
+8. Footer with copyright
+9. Hover effects on cards and buttons
+10. Responsive layout
