@@ -1,14 +1,16 @@
-@font-face {
-  font-family: "Playfair Display";
-  src: url("/assets/fonts/PlayfairDisplay.woff2") format("woff2");
-  font-weight: 400 800;
-  font-display: swap;
-}
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Fira+Code:wght@400;500&display=swap");
 
 @font-face {
   font-family: "Plus Jakarta Sans";
   src: url("/assets/fonts/PlusJakartaSans.woff2") format("woff2");
   font-weight: 300 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("/assets/fonts/BricolageGrotesque.woff2") format("woff2");
+  font-weight: 200 800;
   font-display: swap;
 }
 
@@ -18,188 +20,324 @@
 
 @layer base {
   :root {
-    --background: 0.84 0.038 293;
-    --foreground: 0.13 0.005 285;
-    --card: 0.99 0.003 285;
-    --card-foreground: 0.13 0.005 285;
-    --popover: 0.99 0.003 285;
-    --popover-foreground: 0.13 0.005 285;
-    --primary: 0.13 0.005 285;
-    --primary-foreground: 0.99 0.003 285;
-    --secondary: 0.92 0.02 293;
-    --secondary-foreground: 0.13 0.005 285;
-    --muted: 0.9 0.025 293;
-    --muted-foreground: 0.42 0.01 285;
-    --accent: 0.86 0.04 293;
-    --accent-foreground: 0.13 0.005 285;
-    --destructive: 0.55 0.18 27;
-    --destructive-foreground: 0.99 0.003 285;
-    --border: 0.78 0.04 293;
-    --input: 0.78 0.04 293;
-    --ring: 0.13 0.005 285;
-    --radius: 14px;
-    --chart-1: 0.65 0.15 300;
-    --chart-2: 0.6 0.14 250;
-    --chart-3: 0.55 0.13 200;
-    --chart-4: 0.7 0.12 320;
-    --chart-5: 0.75 0.1 270;
-    --sidebar: 0.13 0.005 285;
-    --sidebar-foreground: 0.99 0.003 285;
-    --sidebar-primary: 0.65 0.15 293;
-    --sidebar-primary-foreground: 0.99 0.003 285;
-    --sidebar-accent: 0.2 0.01 285;
-    --sidebar-accent-foreground: 0.99 0.003 285;
-    --sidebar-border: 0.25 0.01 285;
-    --sidebar-ring: 0.65 0.15 293;
-  }
-}
+    /* lavender light mode */
+    --background: 0.916 0.038 291;
+    --foreground: 0.15 0.02 270;
+    --card: 0.97 0.01 291;
+    --card-foreground: 0.15 0.02 270;
+    --popover: 0.97 0.01 291;
+    --popover-foreground: 0.15 0.02 270;
+    --primary: 0.44 0.19 294;
+    --primary-foreground: 0.98 0 0;
+    --secondary: 0.93 0.025 291;
+    --secondary-foreground: 0.15 0.02 270;
+    --muted: 0.91 0.03 291;
+    --muted-foreground: 0.5 0.06 285;
+    --accent: 0.62 0.17 291;
+    --accent-foreground: 0.98 0 0;
+    --destructive: 0.55 0.21 27;
+    --destructive-foreground: 0.98 0 0;
+    --border: 0.86 0.04 288;
+    --input: 0.88 0.03 288;
+    --ring: 0.44 0.19 294;
+    --radius: 0.75rem;
+    --navbar: 0.14 0.04 270;
 
-@layer base {
+    /* glass morphism */
+    --glass-bg: rgba(255, 255, 255, 0.3);
+    --glass-border: rgba(255, 255, 255, 0.45);
+    --glass-shadow: 0 8px 32px rgba(100, 80, 180, 0.1);
+  }
+
+  .dark {
+    --background: 0.115 0.04 278;
+    --foreground: 0.92 0.01 270;
+    --card: 0.16 0.04 278;
+    --card-foreground: 0.92 0.01 270;
+    --popover: 0.16 0.04 278;
+    --popover-foreground: 0.92 0.01 270;
+    --primary: 0.65 0.18 291;
+    --primary-foreground: 0.1 0.02 270;
+    --secondary: 0.2 0.04 278;
+    --secondary-foreground: 0.85 0.01 270;
+    --muted: 0.21 0.04 278;
+    --muted-foreground: 0.6 0.05 280;
+    --accent: 0.55 0.16 291;
+    --accent-foreground: 0.1 0.02 270;
+    --destructive: 0.55 0.21 27;
+    --destructive-foreground: 0.98 0 0;
+    --border: 0.28 0.05 278;
+    --input: 0.25 0.05 278;
+    --ring: 0.65 0.18 291;
+    --navbar: 0.1 0.04 270;
+
+    --glass-bg: rgba(255, 255, 255, 0.06);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+
   * {
     @apply border-border;
+    box-sizing: border-box;
   }
+
   html {
     scroll-behavior: smooth;
   }
+
   body {
     @apply bg-background text-foreground;
-    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
-    background-color: #c9c8e8;
+    font-family: "Inter", "Plus Jakarta Sans", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    transition: background-color 0.4s ease, color 0.4s ease;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
   }
 }
 
-/* ─── Leaf float animation ─────────────────────────────────────────────────── */
-@keyframes leafFloat {
+@layer components {
+  /* Glassmorphism card */
+  .glass-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: var(--glass-shadow);
+    border-radius: 24px;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-card:hover {
+    transform: translateY(-4px) scale(1.008);
+    box-shadow: 0 16px 48px rgba(100, 80, 180, 0.18);
+  }
+
+  /* Glow button */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    border-radius: 50px;
+    background: linear-gradient(
+      135deg,
+      oklch(var(--primary)) 0%,
+      oklch(0.38 0.22 300) 100%
+    );
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px oklch(var(--primary) / 0.35);
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    transition: left 0.5s ease;
+  }
+
+  .btn-primary:hover::before {
+    left: 100%;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px oklch(var(--primary) / 0.5), 0 0 0 3px
+      oklch(var(--primary) / 0.15);
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    border-radius: 50px;
+    background: var(--glass-bg);
+    color: oklch(var(--foreground));
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px oklch(var(--primary) / 0.2);
+    border-color: oklch(var(--primary) / 0.5);
+  }
+
+  /* Section card wrapper */
+  .section-card {
+    @apply glass-card p-7 md:p-10;
+  }
+
+  .section-heading {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: oklch(var(--foreground));
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    padding-left: 14px;
+    border-left: 4px solid oklch(var(--primary));
+    border-bottom: 1px solid oklch(var(--border));
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: -0.01em;
+  }
+
+  /* Skill badges */
+  .skill-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(8px);
+    color: oklch(var(--foreground));
+    transition: all 0.25s ease;
+    cursor: default;
+  }
+
+  .skill-badge:hover {
+    background: oklch(var(--primary) / 0.12);
+    border-color: oklch(var(--primary) / 0.4);
+    transform: translateY(-2px) scale(1.04);
+    color: oklch(var(--primary));
+  }
+
+  /* Nav links */
+  .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s ease;
+    position: relative;
+    text-decoration: none;
+    padding-bottom: 2px;
+  }
+
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: white;
+    transition: all 0.25s ease;
+    transform: translateX(-50%);
+  }
+
+  .nav-link:hover {
+    color: white;
+  }
+  .nav-link:hover::after {
+    width: 100%;
+  }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1), transform 0.65s
+      cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Monitor float */
+  .monitor-float {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  /* Depth blur blobs */
+  .depth-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+@layer utilities {
+  .gradient-text {
+    background: linear-gradient(
+      135deg,
+      oklch(0.44 0.19 294),
+      oklch(0.55 0.2 320),
+      oklch(0.45 0.18 250)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .dark .gradient-text {
+    background: linear-gradient(
+      135deg,
+      oklch(0.72 0.18 291),
+      oklch(0.75 0.16 320),
+      oklch(0.68 0.18 250)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Keyframes */
+@keyframes float {
   0%,
   100% {
-    transform: translateY(0px) rotate(0deg);
+    transform: translateY(0px);
   }
   50% {
-    transform: translateY(-7px) rotate(1.5deg);
+    transform: translateY(-12px);
   }
 }
 
-.leaf-float {
-  animation: leafFloat 9s ease-in-out infinite;
-}
-
-.leaf-float-alt {
-  animation: leafFloat 11s ease-in-out infinite;
-  animation-delay: -4s;
-}
-
-/* ─── Plant leaf sway ──────────────────────────────────────────────────────── */
-@keyframes leafSway {
-  0%,
-  100% {
-    transform: rotate(0deg);
-  }
-  50% {
-    transform: rotate(6deg);
-  }
-}
-
-.leaf-sway-1 {
-  animation: leafSway 5s ease-in-out infinite;
-  animation-delay: 0s;
-}
-.leaf-sway-2 {
-  animation: leafSway 6s ease-in-out infinite;
-  animation-delay: -2s;
-}
-.leaf-sway-3 {
-  animation: leafSway 4.5s ease-in-out infinite;
-  animation-delay: -1s;
-}
-.leaf-sway-4 {
-  animation: leafSway 7s ease-in-out infinite;
-  animation-delay: -3s;
-}
-
-/* ─── Fish swim animation ──────────────────────────────────────────────────── */
-@keyframes fishSwim {
-  0% {
-    transform: translate(-22px, 1px) scaleX(-1);
-  }
-  48% {
-    transform: translate(22px, -2px) scaleX(-1);
-  }
-  50% {
-    transform: translate(22px, -2px) scaleX(1);
-  }
-  98% {
-    transform: translate(-22px, 2px) scaleX(1);
-  }
-  100% {
-    transform: translate(-22px, 1px) scaleX(-1);
-  }
-}
-
-.fish-swim {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: fishSwim 10s ease-in-out infinite;
-}
-
-/* ─── Flower sway animations ───────────────────────────────────────────────── */
-@keyframes flowerSwayLeft {
-  0%,
-  100% {
-    transform: rotate(0deg);
-  }
-  33% {
-    transform: rotate(-4deg);
-  }
-  66% {
-    transform: rotate(3deg);
-  }
-}
-
-@keyframes flowerSwayRight {
-  0%,
-  100% {
-    transform: rotate(0deg);
-  }
-  33% {
-    transform: rotate(3.5deg);
-  }
-  66% {
-    transform: rotate(-3deg);
-  }
-}
-
-.flower-sway-left {
-  transform-box: fill-box;
-  animation: flowerSwayLeft 7s ease-in-out infinite;
-}
-
-.flower-sway-right {
-  transform-box: fill-box;
-  animation: flowerSwayRight 8s ease-in-out infinite;
-  animation-delay: -3s;
-}
-
-/* ─── Water shimmer ────────────────────────────────────────────────────────── */
-@keyframes waterShimmer {
-  0%,
-  100% {
-    opacity: 0.5;
-    transform: scaleX(1);
-  }
-  50% {
-    opacity: 0.9;
-    transform: scaleX(1.04);
-  }
-}
-
-.water-shimmer {
-  animation: waterShimmer 4s ease-in-out infinite;
-  transform-box: fill-box;
-  transform-origin: center;
-}
-
-/* ─── Cursor blink ─────────────────────────────────────────────────────────── */
-@keyframes cursorBlink {
+@keyframes blink {
   0%,
   100% {
     opacity: 1;
@@ -209,51 +347,68 @@
   }
 }
 
-.cursor-blink {
-  animation: cursorBlink 1s step-end infinite;
-}
-
-/* ─── Nav link hover underline ─────────────────────────────────────────────── */
-.nav-link {
-  position: relative;
-}
-.nav-link::after {
-  content: "";
-  position: absolute;
-  bottom: -3px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: white;
-  transition: width 0.25s ease;
-  border-radius: 2px;
-}
-.nav-link:hover::after {
-  width: 100%;
-}
-
-/* ─── Telegram button glow ─────────────────────────────────────────────────── */
-@keyframes telegramGlow {
+@keyframes glow-pulse {
   0%,
   100% {
-    box-shadow: 0 4px 20px rgba(0, 136, 204, 0.3);
+    box-shadow: 0 8px 32px oklch(var(--primary) / 0.5);
   }
   50% {
-    box-shadow: 0 4px 32px rgba(0, 136, 204, 0.6);
+    box-shadow: 0 8px 48px oklch(var(--primary) / 0.8), 0 0 60px
+      oklch(var(--primary) / 0.3);
   }
 }
 
-.telegram-btn {
-  animation: telegramGlow 3s ease-in-out infinite;
-}
-.telegram-btn:hover {
-  animation: none;
-  box-shadow: 0 6px 40px rgba(0, 136, 204, 0.7);
-  transform: translateY(-2px) scale(1.03);
-  transition: all 0.2s ease;
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
 }
 
-/* ─── Scroll reveal ────────────────────────────────────────────────────────── */
-.reveal-section {
-  transition: opacity 0.7s ease, transform 0.7s ease;
+@keyframes telegram-pulse {
+  0%,
+  100% {
+    box-shadow: 0 4px 20px rgba(0, 136, 204, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 40px rgba(0, 136, 204, 0.75), 0 0 60px
+      rgba(0, 136, 204, 0.3);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive tweaks */
+@media (max-width: 640px) {
+  .desk-scene-container {
+    transform: scale(0.72) !important;
+    transform-origin: top center;
+  }
+}
+
+@media (max-width: 400px) {
+  .desk-scene-container {
+    transform: scale(0.58) !important;
+    transform-origin: top center;
+  }
 }
